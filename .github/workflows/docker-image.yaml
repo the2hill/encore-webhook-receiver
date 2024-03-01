@@ -1,0 +1,23 @@
+name: Webhook Image CI
+on: [push,pull_request]
+run-name: build image for encore-webhook-receiver
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+      - name: 'Build and push the image'
+        run: |
+          docker build . --file docker/Dockerfile --tag ghcr.io/the2hill/encore-webhook-receiver:latest
+          docker push ghcr.io/the2hill/encore-webhook-receiver:latest
